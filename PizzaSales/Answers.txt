@@ -1,0 +1,78 @@
+SELECT * from order_details;
+
+-- Retrieve the total number of orders placed.
+SELECT COUNT(order_id) as Total_Orders from orders;
+
+-- Calculate the total revenue generated from pizza sales.
+select round(sum(p.price*od.quantity),2) as Total_sale from order_details od
+join pizzas p
+on od.pizza_id = p.pizza_id;
+
+-- Identify the highest-priced pizza.
+SELECT TOP 1 pizza_types.name, pizzas.price from pizza_types 
+JOIN pizzas 
+on pizza_types.pizza_type_id = pizzas.pizza_type_id
+ORDER by pizzas.price DESC;
+
+
+-- Identify the most common pizza size ordered.
+SELECT pizzas.size, COUNT(order_details.order_details_id) as MostOrdered FROM pizzas
+JOIN order_details
+on pizzas.pizza_id = order_details.pizza_id
+GROUP by pizzas.size
+order by MostOrdered desc; 
+
+-- List the top 5 most ordered pizza types along with their quantities.
+select top 5 pizza_types.name, (order_details.quantity) as TopFivePizza from pizza_types
+JOIN pizzas
+on pizza_types.pizza_type_id = pizzas.pizza_type_id
+
+JOIN order_details
+on order_details.pizza_id = pizzas.pizza_id;
+
+GROUP by pizza_types.name
+order by TopFivePizza DESC;
+
+-- Join the necessary tables to find the total quantity of each pizza category ordered.
+
+SELECT pizza_types.category, SUM(order_details.quantity) as TOTALCATEGORY from pizza_types
+JOIN pizzas
+on pizza_types.pizza_type_id = pizzas.pizza_type_id 
+
+JOIN order_details
+on order_details.pizza_id = pizzas.pizza_id 
+GROUP BY pizza_types.category;
+
+-- Determine the distribution of orders by hour of the day.order_details
+SELECT DATEPART(HOUR, orders.time) AS time, COUNT(orders.order_id) as OrdersInterval
+FROM orders
+GROUP BY DATEPART(HOUR, orders.time) 
+order by OrdersInterval DESC;
+
+-- Join relevant tables to find the category-wise distribution of pizzas.
+SELECT category, COUNT(name) as CountOFPizzaType FROM pizza_types
+GROUP BY category;
+
+
+-- Group the orders by date and calculate the average number of pizzas ordered per day.
+SELECT round(avg(perDaySale), 0) from 
+           (
+SELECT orders.date, sum(order_details.quantity) as perDaySale from orders
+join order_details
+on orders.order_id = order_details.order_id
+GROUP by orders.date
+             ) as average_number_of_pizzas_ordered_perday;
+
+
+-- Determine the top 3 most ordered pizza types based on revenue.
+SELECT top 5 pizza_types.name, sum(pizzas.price*order_details.quantity) as MostSale from pizzas
+JOIN pizza_types
+on pizzas.pizza_type_id = pizza_types.pizza_type_id
+
+JOIN order_details
+on order_details.pizza_id = pizzas.pizza_id
+GROUP by pizza_types.name
+order by mostSale DESC;
+
+
+
